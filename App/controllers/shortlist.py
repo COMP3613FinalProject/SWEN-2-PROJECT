@@ -20,7 +20,8 @@ def add_student_to_shortlist(student_id, position_id, staff_id):
         return shortlist
     
     return False
-
+    
+''' TO BE REMOVED AND PUT INTO EMPLOYER CONTROLLER
 def decide_shortlist(student_id, position_id, decision):
     student = db.session.query(Student).filter_by(user_id=student_id).first()
     shortlist = db.session.query(Shortlist).filter_by(student_id=student.id, position_id=position_id, status ="pending").first()
@@ -30,7 +31,7 @@ def decide_shortlist(student_id, position_id, decision):
         position.update_number_of_positions(position.number_of_positions - 1)
         return shortlist
     return False
-
+'''
 
 def get_shortlist_by_student(student_id):
     student = db.session.query(Student).filter_by(user_id=student_id).first()
