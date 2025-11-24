@@ -2,6 +2,8 @@ from App.models.employer import Employer
 from App.database import db
 from App.models import Student, Shortlist, Position
 from App.controllers.user import *
+from App.models.context import Context
+from App.models.application import Application
 
 def create_employer(username, password, email, company, phone_number):
   newEmployer = Employer(username, password, email, company, phone_number)
@@ -17,5 +19,6 @@ def decide_shortlist(student_id, position_id, decision):
     shortlist.update_status(decision)
     position.update_number_of_positions(position.number_of_positions - 1)
     db.session.commit()
+    application.setStatus(decision)
     return shortlist
   return False
