@@ -1,6 +1,7 @@
 from App import db
 from App.models.context import Context
 from App.models.applied_state import AppliedState
+from App.models.shortlisted_state import ShortListedState
 
 class Application(db.Model):
     __tablename__ = "application"
@@ -8,19 +9,23 @@ class Application(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     student_id = db.Column(db.Integer, db.ForeignKey('student.id'), nullable=False)
     position_id = db.Column(db.Integer, db.ForeignKey('position.id'), nullable=False)
-    status = db.Column(db.String(10), default="applied", nullable=False)
+    status = db.Column(db.String(15), default="applied", nullable=False)
 
     def __init__(self, student_id, position_id, status="applied"):
         self.student_id = student_id
         self.position_id = position_id
         self.context = Context(AppliedState())
-        self.status = AppliedState.getStateName()
+        self.status = self.context.state.name #applied
 
     def getStatus(self):
         return self.status
 
-    def setStatus(self, newStatus:str):
-        self.status = newStatus
+    def setStatus(self, newStatus:str): # transition to shortlisted / accepted / rejected states
+        if isinstance(self.context.state, AppliedState) and newStatus=="shortlisted": #Applied -> Shortlisted
+            self.context.setState(ShortListedState())
+        elif isinstance(self.context.state, ShortListedState): #Shortlisted -> Accepted / Rejected
+            self.context.state.next_decision(newStatus)
+        self.status = self.context.state.name
         db.session.commit()
 
     def __repr__(self):
