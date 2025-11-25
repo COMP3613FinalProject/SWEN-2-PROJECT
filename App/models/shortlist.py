@@ -2,49 +2,49 @@ from App.database import db
 from App.models.user import User
 from sqlalchemy import Enum
 import enum  
+from App.models.context import Context
 
-class DecisionStatus(enum.Enum):
-    accepted = "accepted"
-    rejected = "rejected"
-    pending = "pending"
 
 class Shortlist(db.Model):
     __tablename__ = 'shortlist'
     id = db.Column(db.Integer, primary_key=True)
-    student_id = db.Column(db.Integer, db.ForeignKey('student.id'), nullable=False)
-    title = db.Column(db.String(512), nullable=False)
-    position_id = db.Column(db.Integer, db.ForeignKey('position.id'))
-    staff_id = db.Column(db.Integer, db.ForeignKey('staff.id'), nullable=False)
-    status = db.Column(Enum(DecisionStatus, native_enum=False), nullable=False, default=DecisionStatus.pending)
-    student = db.relationship('Student', backref=db.backref('shortlist', lazy=True))
-    position = db.relationship('Position', backref=db.backref('shortlist', lazy=True))
-    staff = db.relationship('Staff', backref=db.backref('shortlist', lazy=True))
 
-    def __init__(self, student_id, position_id, staff_id, title):
+    student_id = db.Column(db.Integer, db.ForeignKey('student.id'), nullable=False)
+    position_id = db.Column(db.Integer, db.ForeignKey('position.id'), nullable=False)
+    staff_id = db.Column(db.Integer, db.ForeignKey('staff.id'), nullable=False)
+    status= db.Column(db.String(50))
+    
+
+    student= db.relationship('Student', backref=('shortlist'), lazy=True)
+    position = db.relationship('Position', backref=('shortlist'), lazy=True)
+    staff = db.relationship('Staff', backref=('shortlist'), lazy=True)
+
+
+    def __init__(self, student_id, position_id, staff_id,status):
         self.student_id = student_id
         self.position_id = position_id
-        self.status = "pending"
         self.staff_id = staff_id
-        self.title = title
-        
-    def update_status(self, status):
-        self.status = PositionStatus(status)
-        db.session.commit()
+        self.status = status
+      
+      
+    def getStatus(self):
         return self.status
+    
+    def setStatus(self, status): 
+        self.status = status
 
-    def student_shortlist(self, student_id):
+    def student_shortlist(self, student_id):  # gets all the short list for a particular student
         return db.session.query(Shortlist).filter_by(student_id=student_id).all()
 
-    def position_shortlist(self, position_id):
+    def position_shortlist(self, position_id): # gets all the short list for a particular position
         return db.session.query(Shortlist).filter_by(position_id=position_id).all()
         
     def toJSON(self):
         return{
             "id": self.id,
-            "title": self.title,
             "student_id": self.student_id,
             "position_id": self.position_id,
             "staff_id": self.staff_id,
-            "status": self.status.value
+            "status": self.getStatus()
         }
       
