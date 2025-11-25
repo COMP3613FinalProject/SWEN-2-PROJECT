@@ -1,4 +1,6 @@
 from App import db
+from App.models.context import Context
+from App.models.applied_state import AppliedState
 
 class Application(db.Model):
     __tablename__ = "application"
@@ -11,7 +13,8 @@ class Application(db.Model):
     def __init__(self, student_id, position_id, status="applied"):
         self.student_id = student_id
         self.position_id = position_id
-        self.status = status
+        self.context = Context(AppliedState())
+        self.status = AppliedState.getStateName()
 
     def getStatus(self):
         return self.status
