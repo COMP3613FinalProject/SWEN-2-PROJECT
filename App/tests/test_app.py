@@ -3,7 +3,7 @@ from werkzeug.security import check_password_hash, generate_password_hash
 
 from App.main import create_app
 from App.database import db, create_db
-from App.models import User, Employer, Position, Shortlist, Staff, Student, PositionStatus
+from App.models import User, Employer, Position, Shortlist, Staff, Student, PositionStatus, RejectedState
 from App.controllers import (
     create_user,
     get_all_users_json,
@@ -59,6 +59,11 @@ class UserUnitTests(unittest.TestCase):
         assert shortlist.staff_id == 3
         assert shortlist.status == "pending"
 
+    def test_rejected_state(self):
+        state = RejectedState()
+        name = state.getStateName()
+        assert name=="Rejected"
+    
     # pure function no side effects or integrations called
     def test_get_json(self):
         user = User("bob", "bobpass")
