@@ -10,6 +10,7 @@ class Application(db.Model):
     student_id = db.Column(db.Integer, db.ForeignKey('student.id'), nullable=False)
     position_id = db.Column(db.Integer, db.ForeignKey('position.id'), nullable=False)
     status = db.Column(db.String(15), default="applied", nullable=False)
+    type = db.Column(db.String(50))
 
     def __init__(self, student_id, position_id):
         self.student_id = student_id
@@ -30,3 +31,6 @@ class Application(db.Model):
 
     def __repr__(self):
         return f'<Application id: {self.id} - Student ID: {self.student_id} - Position ID: {self.position_id} - Status: {self.status}>'
+
+    __mapper_args__={'polymorphic_identity':'application',
+                     'polymorphic_on':type}
