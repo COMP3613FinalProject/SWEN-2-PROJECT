@@ -1,7 +1,8 @@
 from App.models import Shortlist, Position, Staff, Student, Application
 from App.database import db
 
-# 1. GET ELIGIBLE STUDENTS FOR A POSITION (GPA + Applied)
+
+# 1. GET ELIGIBLE STUDENTS FOR A POSITION
 def get_eligible_students(position_id):
 
     position = Position.query.filter_by(id=position_id).first()
@@ -10,7 +11,7 @@ def get_eligible_students(position_id):
 
     gpa_required = position.gpa_requirement
 
-    # all applications for this position
+    # All existing Application entries for this position
     applications = Application.query.filter_by(position_id=position_id).all()
 
     eligible = []
@@ -19,7 +20,7 @@ def get_eligible_students(position_id):
         student = Student.query.filter_by(id=app.student_id).first()
         if not student:
             continue
-        
+
         # GPA filter
         if gpa_required is None or student.gpa >= gpa_required:
             eligible.append({
@@ -43,5 +44,24 @@ def get_shortlist_by_student(student_id):
 def get_shortlist_by_position(position_id):
     entries = Shortlist.query.filter_by(position_id=position_id).all()
     return [e.toJSON() for e in entries], 200
+
+
+# 4. WITHDRAW A SHORTLIST ENTRY
+def withdraw_shortlist(shortlist_id):
+
+    shortlist = Shortlist.query.filter_by(id=shortlist_id).first()
+
+    if not shortlist:
+        return {"error": "Shortlist entry not found"}, 404
+
+    # Mark as withdrawn
+    shortlist.is_withdrawn = True
+
+    # Update application state using parent's state machine
+    shortlist.setStatus("withdrawn")
+
+    db.session.commit()
+
+    return shortlist.toJSON(), 200
 
 
