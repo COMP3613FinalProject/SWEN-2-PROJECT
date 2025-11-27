@@ -20,7 +20,6 @@ class ShortListedState(ApplicationState):
     def previous(self):
         if self.context:
             self.context.setState(AppliedState())
-            self.context.application.status = "Applied"
 
     def removeShortList(self);
         return None #Not implemented - to be removed
