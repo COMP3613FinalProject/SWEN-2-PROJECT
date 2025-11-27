@@ -4,6 +4,8 @@ from werkzeug.security import check_password_hash, generate_password_hash
 from App.main import create_app
 from App.database import db, create_db
 from App.models import User, Employer, Position, Shortlist, Staff, Student, PositionStatus
+from App.models.shortlisted_state import ShortListedState
+
 from App.controllers import (
     create_user,
     get_all_users_json,
@@ -76,6 +78,11 @@ class UserUnitTests(unittest.TestCase):
         password = "mypass"
         user = User("bob", password)
         assert user.check_password(password)
+    
+    def test_shortlisted_state(self):
+        state = ShortListedState()
+        name = state.getStateName()
+        assert name=="Shortlisted"
 
 '''
     Integration Tests
