@@ -41,7 +41,7 @@ class UserUnitTests(unittest.TestCase):
         assert staff.role == "staff"
 
     def test_new_employer(self):
-        employer = Employer("alice", "alicepass")
+        employer = Employer("alice", "alicepass", "alice@gmail.com", "TechCorp")
         assert employer.username == "alice"
         assert employer.role == "employer"
 
@@ -118,16 +118,17 @@ class UserIntegrationTests(unittest.TestCase):
         
     def test_open_position(self):
         position_count = 2
-        employer = create_user("sally", "sallypass", "employer")
-        assert employer is not None
-        position = open_position("IT Support", employer.id, position_count)
+        employer = create_user("sally", "sallypass", "sally@gmail.com", "employer")
+        assert employer is True
+        employer = Employer.query.filter_by(username="sally").first()
+        position = open_position("IT Support", employer.id, position_count, 3.0)
         positions = get_positions_by_employer(employer.id)
         assert position is not None
         assert position.number_of_positions == position_count
         assert len(positions) > 0
         assert any(p.id == position.id for p in positions)
         
-        invalid_position = open_position("Developer",-1,1)
+        invalid_position = open_position("Developer",-1,1, 0.0)
         assert invalid_position is False
 
 
