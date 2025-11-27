@@ -77,6 +77,10 @@ class UserUnitTests(unittest.TestCase):
         user = User("bob", password)
         assert user.check_password(password)
 
+    def test_new_application(self):
+        app = Application(1, 1)
+        assert app.status == "applied"
+
 '''
     Integration Tests
 '''
