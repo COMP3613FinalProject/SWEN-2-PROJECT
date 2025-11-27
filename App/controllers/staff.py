@@ -4,10 +4,17 @@ from App.controllers.shortlist import get_eligible_students
 
 
 # 1. CREATE STAFF ACCOUNT 
-def create_staff(username, password, email, phone_number=None):
+def create_staff(username, password, email, phone_number=None):  
+    # Basic validation
+    if not username or not password or not email:
+        print("Staff creation failed: missing required fields")
+        return None
+        
     staff = Staff(username, password, email, phone_number)
     db.session.add(staff)
     db.session.commit()
+
+    print(f"Staff '{username}' created successfully!")
     return staff
 
 
@@ -15,6 +22,7 @@ def create_staff(username, password, email, phone_number=None):
 def get_staff(staff_id):
     staff = Staff.query.filter_by(id=staff_id).first()
     if not staff:
+        print("Staff not found")
         return None
     return staff
 
@@ -41,24 +49,34 @@ def staff_shortlist_student(staff_id, student_id, position_id):
     student = Student.query.get(student_id)
     position = Position.query.get(position_id)
 
-    if not staff or not student or not position:
+    if not staff:
+        print("Staff not found")
+        return None
+    if not student:
+        print("Student not found")
+        return None
+    if not position:
+        print("Position not found")
         return None
 
-    # Student must have an application entry (auto-created by Position controller)
+    # Must have an application entry
     app = Application.query.filter_by(student_id=student_id, position_id=position_id).first()
     if not app:
+        print("Student has no application for this position")
         return None
-    
+
     # Must be eligible
-    eligible_students = get_eligible_students(position_id)
-    eligible_ids = [s.id for s in eligible_students]
+    eligible_list, _ = get_eligible_students(position_id)
+    eligible_ids = [e["student_id"] for e in eligible_list] 
 
     if student_id not in eligible_ids:
+        print("Student does NOT meet GPA requirement")
         return None
 
     # Prevent duplicate shortlist
     existing = Shortlist.query.filter_by(student_id=student_id, position_id=position_id).first()
     if existing:
+        print("Student is already shortlisted")
         return None
 
     # Create shortlist entry
@@ -69,10 +87,12 @@ def staff_shortlist_student(staff_id, student_id, position_id):
     )
     db.session.add(shortlist)
 
-    # Update application table
+    # Update parent Application state
     shortlist.setStatus("shortlisted")
 
     db.session.commit()
+
+    print(f"Student {student_id} successfully shortlisted for Position {position_id}")
     return shortlist
 
 
