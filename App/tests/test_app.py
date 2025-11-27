@@ -4,6 +4,8 @@ from werkzeug.security import check_password_hash, generate_password_hash
 from App.main import create_app
 from App.database import db, create_db
 from App.models import User, Employer, Position, Shortlist, Staff, Student, PositionStatus
+from App.models.accepted_state import AcceptedState
+
 from App.controllers import (
     create_user,
     get_all_users_json,
@@ -17,6 +19,7 @@ from App.controllers import (
     get_shortlist_by_student,
     decide_shortlist
 )
+
 
 
 LOGGER = logging.getLogger(__name__)
@@ -76,6 +79,11 @@ class UserUnitTests(unittest.TestCase):
         password = "mypass"
         user = User("bob", password)
         assert user.check_password(password)
+
+    def test_accepted_state(self):
+        state = AcceptedState()
+        name = state.getStateName()
+        assert name=="Accepted"
 
 '''
     Integration Tests
