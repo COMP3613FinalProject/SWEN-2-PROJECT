@@ -5,3 +5,4 @@ from .employer import *
 from .position import *
 from .shortlist import *
 from .context import *
+from .application import *
