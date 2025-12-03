@@ -1,25 +1,26 @@
-from models.application_state import ApplicationState
+from App.models.application_state import ApplicationState  # App added new change
 
 
 class AcceptedState(ApplicationState):
     def __init__(self):
         super().__init__("Accepted")
 
-    def next(self):
+    def next(self,app):
         return None  # No direct next state from Accepted
 
-    def previous(self):
-        if self.context:
-            from models.shortlisted_state import ShortListedState
-            self.context.setState(ShortListedState())  # No previous state from Accepted
+    def previous(self,app):
+       
+            from App.models.shortlisted_state import ShortListedState
+            app.set_state(ShortListedState())  # No previous state from Accepted
 
     def acceptOffer(self):
         self.name="Confirmed"
 
-    def withdraw(self):
-        if self.context: # check if there is a valid context
-            from models.rejected_state import RejectedState
-            self.context.setState(RejectedState())
+    def withdraw(self,app):
+        
+            from App.models.rejected_state import RejectedState
+            app.set_state(RejectedState())
             
     def getMatchedCompanies(self):
         return []  # No matched companies for accepted applications
+
