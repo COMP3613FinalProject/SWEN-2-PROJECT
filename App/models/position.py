@@ -43,6 +43,9 @@ class Position(db.Model):
     def list_positions(self):
         return db.session.query(Position).all()
 
+    def __repr__(self):
+        return f'<Position ID: {self.id} - Title: {self.title} - No. positions: {self.number_of_positions} - Status: {self.status} - Employer ID: {self.employer_id}>'
+
     def toJSON(self):
         return {
             "id": self.id,

@@ -1,8 +1,10 @@
 from App.models import Position, Employer, Student, Application
+#from  App.controllers.shortlist import get_eligible_students
 from App.database import db
 
+# responsible for just creating positions , automatic mathcing is handled when an application is created. The studnets auto-applies are all the psoitions they qualify for 
 def open_position(user_id, title, number_of_positions=1, gpa_requirement=None):
-    employer = Employer.query.filter_by(id=user_id).first()
+    employer = Employer.query.get(user_id)
     if not employer:
         return None
     
@@ -10,26 +12,22 @@ def open_position(user_id, title, number_of_positions=1, gpa_requirement=None):
     db.session.add(new_position)
     try:
         db.session.commit()
-        getEligibleStudents(new_position)
+        print(f"Position {new_position.id} created successfully!")
+        #get_eligible_students(new_position)
         return new_position
     except Exception as e:
         db.session.rollback()
         return None
 
-def getEligibleStudents(position):
-    students = db.session.query(Student).all()
-    eligible_students=[]
-    for student in students:
-        if student.gpa >= position.gpa_requirement or position.gpa_requirement is None:
-            application = Application(student_id=student.id, position_id=position.id)
-            db.session.add(application)
-            eligible_students.append(student)
-    db.session.commit()
-    return eligible_students            
+def get_position(position_id):  #Needed for testing 
+    return Position.query.get(position_id)
+
+def get_position_by_title(title):
+    return Position.query.filter_by(title=title).first() #Needed for testing 
 
 def get_positions_by_employer(user_id):
-    employer = Employer.query.filter_by(id=user_id).first()
-    return db.session.query(Position).filter_by(employer_id=employer.id).all()
+    employer = Employer.query.get(user_id)
+    return Position.query.filter_by(employer_id=employer.id).all()
 
 def get_all_positions_json():
     positions = Position.query.all()
