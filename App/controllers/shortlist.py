@@ -36,8 +36,6 @@ def get_eligible_students(position_id):
 # 2. GET ALL SHORTLISTS FOR A STUDENT
 def get_shortlist_by_student(student_id):
 
- 
-
     return Application.query.filter(Application.student_id == student_id,Application.status == "Shortlisted").all()
 
     # shortlists = Shortlist.query.filter_by(student_id=student_id).all()
@@ -55,7 +53,7 @@ def get_shortlist_by_position(position_id):
         print("Position not found.")
         return []
         
-    return Shortlist.query.filter_by(position_id=position_id).all()
+    return Application.query.filter(Application.position_id == position_id,Application.status == "Shortlisted").all()
    
 
 # 4. WITHDRAW A SHORTLIST ENTRY
