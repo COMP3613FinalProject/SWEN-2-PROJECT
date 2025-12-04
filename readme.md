@@ -103,7 +103,7 @@ When connecting the project to a fresh empty database ensure the appropriate con
 ```bash
 $ flask init
 ```
-
+# 
 # Database Migrations
 If changes to the models are made, the database must be'migrated' so that it can be synced with the new models.
 Then execute following commands using manage.py. More info [here](https://flask-migrate.readthedocs.io/en/latest/)
@@ -187,43 +187,54 @@ If you are running into errors in gitpod when updateding your github actions fil
 
 If you are adding models you may need to migrate the database with the commands given in the previous database migration section. Alternateively you can delete you database file.
 
-# Flask Commands for Assignment
+# PROJECT COMMANDS
 
-## flask user "username" "password" "type"
-    type: Which type of account. Choice between student, staff or employer
-    Creates a user account.
+Creates a user in this case it was of type staff using the create_user controller  method 
 
-## flask user add_position "title" "employer_id"
-    title: Title of position
-    employer_id: Id of employer
+```bash
+$ flask user create
+```
 
-    Creates an internship position for staff to shortlist on
+This command creates a new position. It requires an employer id since employers are the only users that should be allows to do so.
 
-## flask user add_to_shortlist "student_id" "position_id" "staff_id"
-    student_id: Id of Student
-    position_id: Id of Position
-    staff_id: Id of Staff
+```bash
+$ flask user add_position
+```
 
-    Staff member add a student to a position's shortlist
+Creates a student and automatically creates applications for that student where their GPA matches the minimum reuired GPA for any existing positions. This set up requires positions to be available first. The application here is set to applied 
 
-## flask user decide_shortlist "student_id" "position_id"
-    student_id: Id of Student
-    position_id: Id of Position
+```bash
+$ flask user create_student 
+```
 
-    Employer either accepts or rejects a student from the shortlist
+This command shortlists an application to a position given that the applications meets the position's specifications. The application here is set to Shortlisted
+```bash
+$ flask user add_to_shortlist
+```
+Gets all of the shortlisted positions for a specific student 
+```bash
+$ flask user get_shortlist 
+```
 
-## flask user get_shortlist "student_id"
-    student_id: Id of Student
+Gets all of the shortlists for a particular position
+```bash
+$ flask user  get_shortlist_by_position
+```
 
-    Retrives the positions the selected student is shortlisted on
+Gets all of the positions an employer created 
+```bash
+$ flask user get_position_by_employer 
+```
 
-## flask user get_shortlist_by_position "position_id"
-    position_id: Id of Position
+An employer decides to accept or reject a student's application. This lead to a change in the state from Shortlisted to Accepted or Rejected
+```bash
+$ flask user decide_shortlist
+```
 
-    Retrives the shortlist for a specific position
 
-## flask user get_position_by_employer "employer_id"
-    employer_id: Id of employer
+This retrieves an application and withdraws that application for the program. This demonstrates that a student can withdraw at any point. Additionally, the student can reject a particular offer while having other exiting applications that can be Shortlisted for another offer or Accepted by another employer. 
+```bash
+$ flask user withdraw_application
+```
 
-    Retrives the postiotns created from a given employer
         
