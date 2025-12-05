@@ -13,21 +13,41 @@ def create_employer(username, password, email, company, phone_number):
 
 def decide_shortlist(student_id, position_id, decision):
 
-  student = Student.query.get(student_id)
-  position = Position.query.filter(Position.id==position_id, Position.number_of_positions > 0).first()
+    student = Student.query.get(student_id)
+    position = Position.query.get(position_id)
 
-  if not student or not position:
-    return False
+    if not student or not position:
+        return False
 
-  application = Application.query.filter_by(student_id=student.id, position_id=position.id).first()
-  if not application: return False
-    
-  shortlist = Shortlist.query.filter_by(application_id=application.id, isWithdrawn=False).first()
+    application = Application.query.filter_by(
+        student_id=student.id,
+        position_id=position.id
+    ).first()
 
-  if shortlist and shortlist.application:
+    if not application:
+        return False
+
+    shortlist = Shortlist.query.filter_by(
+        application_id=application.id,
+        isWithdrawn=False
+    ).first()
+
+    if not shortlist:
+        return False
+
+    # Position Fixexit()
     if decision == "accept":
-        position.update_number_of_positions(position.number_of_positions - 1)
+        if position.number_of_positions <= 0:
+            print("No available positions.")
+            return False
+        
+        # Consume one slot for accept
+        position.number_of_positions -= 1
 
+    # Reject does NOT consume slot
+
+    # Move to next stage in state machine
     shortlist.application.next(decision)
+
     db.session.commit()
     return shortlist
