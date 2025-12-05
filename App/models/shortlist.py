@@ -9,7 +9,7 @@ class Shortlist(db.Model):  # no inheritance
     staff_id = db.Column(db.Integer, db.ForeignKey('staff.id'), nullable=False)
     isWithdrawn = db.Column(db.Boolean, default=False)
 
-    application=db.relationship('Application', backref="shortlist", uselist=False)
+    application=db.relationship('Application', backpopulates="shortlist", uselist=False)
     staff = db.relationship('Staff', backref="shortlist")
     
 
