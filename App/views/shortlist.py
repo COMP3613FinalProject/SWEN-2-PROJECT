@@ -1,64 +1,72 @@
+""" Shortlist endpoints
+Routes (blueprint url_prefix='/api/shortlist'):
+- POST      /api/shortlist/               -> add to shortlist
+- GET       /api/shortlist/student/<id>   -> shortlist entries for a student
+- GET       /api/shortlist/position/<id>  -> shortlist entries for a position
+"""
+
 from flask import Blueprint, jsonify, request
-from flask_jwt_extended import jwt_required, current_user
-from App.controllers import ( add_student_to_shortlist, decide_shortlist, get_shortlist_by_student, get_shortlist_by_position)
+from flask_jwt_extended import jwt_required, get_jwt_identity
+
+# Correct imports
+from App.controllers.staff import staff_shortlist_student
+from App.controllers.shortlist import get_shortlist_by_student, get_shortlist_by_position
+
+shortlist_views = Blueprint('shortlist_views', __name__, url_prefix='/api/shortlist')
 
 
-shortlist_views = Blueprint('shortlist_views', __name__)
-
-
-@shortlist_views.route('/api/shortlist', methods = ['POST'])
+# -------------------------
+# 1. ADD STUDENT TO SHORTLIST
+# -------------------------
+@shortlist_views.route('/', methods=['POST'])
 @jwt_required()
 def add_student_shortlist():
-     if current_user.role != 'staff':
-        return jsonify({"message": "Unauthorized user"}), 403
-    
-     data = request.json
-     request_result = add_student_to_shortlist(student_id=data['student_id'], position_id=data['position_id'], staff_id=current_user.id)
-     
-     if request_result:
-         return jsonify(request_result.toJSON()), 200
-     else:
-         return jsonify({"error": "Failed to add to shortlist"}), 401
-     
-     
+    staff_id = get_jwt_identity()   # identity = the staff user ID
+    data = request.get_json() or {}
 
-@shortlist_views.route('/api/shortlist/student/<int:student_id>', methods = ['GET'])
+    student_id = data.get("student_id")
+    position_id = data.get("position_id")
+
+    if not student_id or not position_id:
+        return jsonify({"error": "student_id and position_id are required"}), 400
+
+    result = staff_shortlist_student(
+        staff_id=staff_id,
+        student_id=student_id,
+        position_id=position_id
+    )
+
+    if not result:
+        return jsonify({"error": "Failed to add to shortlist"}), 400
+
+    return jsonify(result.toJSON()), 200
+
+
+# -------------------------
+# 2. GET SHORTLIST FOR A STUDENT
+# -------------------------
+@shortlist_views.route('/student/<int:student_id>', methods=['GET'])
 @jwt_required()
 def get_student_shortlist(student_id):
-    
-    if current_user.role == 'student' and current_user.id != student_id:
-         return jsonify({"message": "Unauthorized user"}), 403
-     
-     
+
     shortlists = get_shortlist_by_student(student_id)
-    
+
+    if not shortlists:
+        return jsonify({"message": "No listings available"}), 404
+
     return jsonify([s.toJSON() for s in shortlists]), 200
-    
 
 
-@shortlist_views.route('/api/shortlist',methods = ['PUT'] ) 
-@jwt_required()
-def shortlist_decide():
-    if current_user.role != 'employer':
-        return jsonify({"message": "Unauthorized user"}), 403
-    
-    
-    data = request.json
-    request_result = decide_shortlist(data['student_id'], data['position_id'], data['decision'])
-   
-    if request_result:
-        return jsonify(request_result.toJSON()), 200
-    else:
-     return jsonify({"error": "Failed to update shortlist"}), 400
-    
-
-@shortlist_views.route('/api/shortlist/position/<int:position_id>', methods=['GET'])
+# -------------------------
+# 3. GET SHORTLIST FOR A POSITION
+# -------------------------
+@shortlist_views.route('/position/<int:position_id>', methods=['GET'])
 @jwt_required()
 def get_position_shortlist(position_id):
-    if current_user.role != 'employer' and current_user.role != 'staff':
-        return jsonify({"message": "Unauthorized user"}), 403
-    
-    
+
     shortlists = get_shortlist_by_position(position_id)
-    return jsonify([s.toJSON() for s in shortlists]), 200 
-     
+
+    if not shortlists:
+        return jsonify({"message": "No listings available"}), 404
+
+    return jsonify([s.toJSON() for s in shortlists]), 200
