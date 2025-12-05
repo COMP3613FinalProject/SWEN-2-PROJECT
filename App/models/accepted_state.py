@@ -8,7 +8,7 @@ class AcceptedState(ApplicationState):
     def next(self,app):
         return None  # No direct next state from Accepted
 
-    def previous(self,app):
+    def previous(self,app, decision=None):
        
             from App.models.shortlisted_state import ShortListedState
             app.set_state(ShortListedState())  # No previous state from Accepted
