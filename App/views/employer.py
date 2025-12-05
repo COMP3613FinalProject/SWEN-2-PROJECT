@@ -13,7 +13,7 @@ from App.controllers import(
     decide_shortlist
 )
 
-employer_views = Blueprint('employer', _name_, url_prefix='/employer')
+employer_views = Blueprint('employer', __name__, url_prefix='/employer')
 
 #Create employer
 @employer_views.route('/', methods=['POST'])
